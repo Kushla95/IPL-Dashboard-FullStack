@@ -26,6 +26,7 @@ import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
+import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +41,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.zkteco.ipldashboard.model.Match;
 
 @Configuration
-@EnableBatchProcessing
 public class BatchConfig {
 
     private final String[] FIELD_NAMES = new String[] {
@@ -70,6 +70,7 @@ public class BatchConfig {
                         setTargetType(MatchInput.class);
                     }
                 })
+                .linesToSkip(1)
                 .build();
     }
 
@@ -84,7 +85,7 @@ public class BatchConfig {
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO match (id,city,date,player_of_match,venue,team1,team2,toss_winner,toss_decision,match_winner,result,result_margin,umpire1,umpire2)"
                         +
-                        "VALUES (:id,:city,:date,:playerOfMatch,:venue,:team1,:team2,:tossWinner,:tossDecision,:matchWinner,:result,:resultMargin,:umpire1,:umpire2)")
+                        " VALUES (:id,:city,:date,:playerOfMatch,:venue,:team1,:team2,:tossWinner,:tossDecision,:matchWinner,:result,:resultMargin,:umpire1,:umpire2)")
                 .dataSource(dataSource)
                 .build();
     }
@@ -96,7 +97,9 @@ public class BatchConfig {
 
     @Bean
     public Job importUserJob(JobRepository jobRepository, Step step1, JobCompletionNotificationListener listener) {
-        return new JobBuilder("importUserJob", jobRepository).incrementer(new RunIdIncrementer())
+
+        return new JobBuilder("importUserJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
                 .listener(listener)
                 .flow(step1)
                 .end()
