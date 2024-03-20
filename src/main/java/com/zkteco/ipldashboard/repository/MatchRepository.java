@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.zkteco.ipldashboard.model.Match;
+import com.zkteco.ipldashboard.model.Team;
 
 @Repository
 public interface MatchRepository extends CrudRepository<Match, Long> {
@@ -21,6 +22,7 @@ public interface MatchRepository extends CrudRepository<Match, Long> {
     List<Match> getMatchesByTeamBetweenDates(@Param("teamName") String teamName,
             @Param("dateStart") LocalDate dateStart,
             @Param("dateEnd") LocalDate dateEnd);
+
     /*
      * List<Match>
      * getByTeam1AndDateBetweenOrTeam2AndDateBetweenOrderByDateDesc(String
@@ -28,8 +30,11 @@ public interface MatchRepository extends CrudRepository<Match, Long> {
      * LocalDate date2,
      * String teamName2, LocalDate date3, LocalDate date4);
      */
+    @Query("SELECT m FROM Match m JOIN FETCH m.team WHERE m.team = :team")
+    List<Match> findByTeam(Team team);
 
     default List<Match> findLatestMatchesbyTeam(String teamName, int count) {
         return getByTeam1OrTeam2OrderByDateDesc(teamName, teamName, PageRequest.of(0, count));
     }
+
 }

@@ -2,8 +2,13 @@ package com.zkteco.ipldashboard.model;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Match {
@@ -14,6 +19,7 @@ public class Match {
     private LocalDate date;
     private String playerOfMatch;
     private String venue;
+
     private String team1;
     private String team2;
     private String tossWinner;
@@ -23,6 +29,10 @@ public class Match {
     private String resultMargin;
     private String umpire1;
     private String umpire2;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "teamName")
+    private Team team;
 
     public long getId() {
         return id;
@@ -134,6 +144,14 @@ public class Match {
 
     public void setUmpire2(String umpire2) {
         this.umpire2 = umpire2;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 
 }

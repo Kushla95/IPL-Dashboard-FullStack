@@ -17,7 +17,7 @@ export const MatchPage = () => {
     };
 
     fetchMatches();
-  }, []);
+  }, [teamName, year]);
 
   return (
     <div className="MatchPage">
